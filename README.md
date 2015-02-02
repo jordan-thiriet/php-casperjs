@@ -1,4 +1,4 @@
-php-casper
+php-casperjs
 ============
 
 php-casperjs is a library PHP for wrapper CasperJs and write easily functional testing.
