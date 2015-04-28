@@ -30,21 +30,23 @@ class Casper
      * @param $height {integer} height of screen
      * @param $path {string} path for write script casperjs
      */
-    public function __construct($width,$height,$path) {
+    public function __construct($width, $height, $path)
+    {
         $this->_path = $path;
         $this->_script .= "
             var writeOutput = function(scope, functionName, pass, value) {
                 value = value === undefined ? null : value;
                 scope.echo(scope.currentHTTPStatus+';'+scope.getCurrentUrl()+';'+functionName+';'+pass+';'+value);
             };
-            var x = require('casper').selectXPath;var error = 0;
+            var x = require('casper').selectXPath;
+            var error = 0;
+            var count = 0;
             var casper = require('casper').create({
                 viewportSize: {
                     width: $width,
                     height: $height
                 }
-            });"
-        ;
+            });";
     }
 
     /**
@@ -61,7 +63,8 @@ class Casper
      * @param $username {string}
      * @param $password {string}
      */
-    public function setAuthentication($username, $password) {
+    public function setAuthentication($username, $password)
+    {
         $this->_script .= "casper.options.pageSettings = {
                 loadImages:true,
                 loadPlugins:true,
@@ -74,9 +77,10 @@ class Casper
      * Start casperjs script
      * @param $url {string} url start
      */
-    public function start($url) {
+    public function start($url)
+    {
         $this->_script .= "
-            casper.start('".$url."', function() {
+            casper.start('" . $url . "', function() {
                 writeOutput(this,'start',true);
             });";
     }
@@ -85,7 +89,8 @@ class Casper
      * Click on a selector
      * @param $selector
      */
-    public function click($selector) {
+    public function click($selector)
+    {
         $this->_script .= "
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
@@ -102,7 +107,8 @@ class Casper
      * send keys into input
      * @param $selector
      */
-    public function sendKeys($selector) {
+    public function sendKeys($selector)
+    {
         $this->_script .= "
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
@@ -120,7 +126,8 @@ class Casper
      * @param $selector
      * @param $name
      */
-    public function setValue($selector, $name) {
+    public function setValue($selector, $name)
+    {
         $selector = $this->replaceVariable($selector);
         $this->_script .= "
         var regex = /(<([^>]+)>)/ig
@@ -135,7 +142,8 @@ class Casper
      * get a value from variable
      * @param $name
      */
-    public function getValue($name) {
+    public function getValue($name)
+    {
         $this->_script .= "
             writeOutput(this,'getValue',true, $name);
         ";
@@ -145,7 +153,8 @@ class Casper
      * Open a different url
      * @param $url
      */
-    public function open($url) {
+    public function open($url)
+    {
         $this->_script .= "casper.thenOpen('$url',function() {
             writeOutput(this,'open',true);
         });";
@@ -154,7 +163,8 @@ class Casper
     /**
      * Return to previous page
      */
-    public function back() {
+    public function back()
+    {
         $this->_script .= "casper.then(function() {
             casper.back();
             writeOutput(this,'back',true);
@@ -164,7 +174,8 @@ class Casper
     /**
      * Go to forward page
      */
-    public function forward() {
+    public function forward()
+    {
         $this->_script .= "casper.then(function() {
             casper.forward();
             writeOutput(this,'forward',true);
@@ -175,7 +186,8 @@ class Casper
      * Wait a give time
      * @param $time
      */
-    public function wait($time) {
+    public function wait($time)
+    {
         $timems = $time * 1000;
         $this->_script .= "casper.then(function() {
             casper.wait($timems);
@@ -186,7 +198,8 @@ class Casper
     /**
      * Reload page
      */
-    public function reload() {
+    public function reload()
+    {
         $this->_script = "this.reload(function() {
             writeOutput(this,'reload',true);
         });";
@@ -196,11 +209,12 @@ class Casper
      * Get capture from a selector
      *
      * @param $selector     selector xpath
-     * @param null $path    path of picture
+     * @param null $path path of picture
      * @param string $format format of picture (png, jpeg,...)
      * @param int $quality quality of picture
      */
-    public function captureSelector($selector,$path=null,$format='jpg',$quality=70,$type='captureSelector') {
+    public function captureSelector($selector, $path = null, $format = 'jpg', $quality = 70, $type = 'captureSelector')
+    {
         $selector = $this->replaceVariable($selector);
         $path = $this->replaceVariable($path);
         $this->_script .= "casper.then(function() {
@@ -223,8 +237,9 @@ class Casper
      * @param string $format
      * @param int $quality
      */
-    public function capture($path=null, $format='jpg', $quality=70) {
-        $this->captureSelector('body',$path,$format,$quality,'capture');
+    public function capture($path = null, $format = 'jpg', $quality = 70)
+    {
+        $this->captureSelector('body', $path, $format, $quality, 'capture');
     }
 
     /**
@@ -233,7 +248,8 @@ class Casper
      * @param $start
      * @param $stop
      */
-    public function forStart($start,$stop) {
+    public function forStart($start, $stop)
+    {
         $this->_script .= "
         casper.then(function() {
             var range = [];
@@ -249,7 +265,8 @@ class Casper
     /**
      * end of loop for
      */
-    public function forEnd() {
+    public function forEnd()
+    {
         $this->_script .= "
                 casper.then(function() {
                     i++;
@@ -260,12 +277,53 @@ class Casper
     }
 
     /**
+     * Count item of selector
+     * @param $selector
+     */
+    public function count($selector)
+    {
+        $this->_script .= "
+        casper.then(function() {
+            if(casper.exists(x('$selector'))) {
+                count = this.getElementsInfo(x('$selector')).length;
+            } else {
+                count = 0;
+            }
+            });
+        ";
+    }
+
+    /**
+     * If selector exist
+     * @param $selector
+     */
+    public function ifStart($selector)
+    {
+        $this->_script .= "
+        casper.then(function() {
+            if(casper.exists(x('$selector')))  {
+        ";
+    }
+
+    /**
+     * End of if
+     */
+    public function ifEnd()
+    {
+        $this->_script .= "
+            }
+        });
+        ";
+    }
+
+    /**
      * Check if value is equals to comparator
      *
      * @param $selector
      * @param $comparator
      */
-    public function assertEquals($selector, $comparator) {
+    public function assertEquals($selector, $comparator)
+    {
         $this->_script = "casper.then(function() {
             if(casper.exists(x('$selector')))  {
                 if(this.getHTML(x('$selector')) == '$comparator') {
@@ -285,7 +343,8 @@ class Casper
      * @param $selector
      * @param $comparator
      */
-    public function assertContains($selector, $comparator) {
+    public function assertContains($selector, $comparator)
+    {
         $this->_script = "casper.then(function() {
             if(casper.exists(x('$selector')))  {
                 if(this.getHTML(x('$selector')).match('$comparator')) {
@@ -303,14 +362,14 @@ class Casper
      * Check if element exist
      * @param $selector
      */
-    public function assertIsExist($selector) {
+    public function assertIsExist($selector)
+    {
         $this->_script = "if(casper.exists(x('$selector')))  {
                 writeOutput(this,'assert_is_exist',true);
             } else {
                 writeOutput(this,'assert_is_exist',false);
             }";
     }
-
 
 
     /**
@@ -321,14 +380,14 @@ class Casper
         $this->_script .= "casper.run();";
 
         // Write in file javascript
-        $handle = fopen($this->_path,'w');
-        fwrite($handle,$this->_script);
+        $handle = fopen($this->_path, 'w');
+        fwrite($handle, $this->_script);
 
         // datetime start
         $this->_dateStart = new \DateTime;
 
         // Execute casperjs script
-        exec('casperjs '.$this->_path,$this->_output);
+        exec('casperjs ' . $this->_path, $this->_output);
 
         // datetime end
         $this->_dateEnd = new \DateTime;
@@ -343,8 +402,8 @@ class Casper
         $results = array();
 
         // For all results of casperjs output
-        foreach($this->_output as $output) {
-            $explode = explode(';',$output);
+        foreach ($this->_output as $output) {
+            $explode = explode(';', $output);
             $result = array();
             $result['http_status'] = $explode[0];
             $result['current_url'] = $explode[1];
@@ -364,11 +423,12 @@ class Casper
      * @param $string
      * @return mixed
      */
-    private function replaceVariable($string) {
+    private function replaceVariable($string)
+    {
         $matches = array();
         preg_match_all('/{\w+}/', $string, $matches);
-        foreach($matches[0] as $match) {
-            $string = str_replace($match,"'+".substr($match,1,-1)."+'",$string);
+        foreach ($matches[0] as $match) {
+            $string = str_replace($match, "'+" . substr($match, 1, -1) . "+'", $string);
         }
         return $string;
     }
