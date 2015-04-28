@@ -34,9 +34,9 @@ class Casper
     {
         $this->_path = $path;
         $this->_script .= "
-            var writeOutput = function(scope, functionName, pass, value) {
+            var writeOutput = function(scope, functionName, pass, element, value) {
                 value = value === undefined ? null : value;
-                scope.echo(scope.currentHTTPStatus+';'+scope.getCurrentUrl()+';'+functionName+';'+pass+';'+value);
+                scope.echo(scope.currentHTTPStatus+';'+scope.getCurrentUrl()+';'+functionName+';'+pass+';'+element+';'+value);
             };
             var x = require('casper').selectXPath;
             var error = 0;
@@ -81,7 +81,7 @@ class Casper
     {
         $this->_script .= "
             casper.start('" . $url . "', function() {
-                writeOutput(this,'start',true);
+                writeOutput(this,'start',true, null, '$url');
             });";
     }
 
@@ -95,9 +95,9 @@ class Casper
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
                     this.thenClick(x('$selector'));
-                    writeOutput(this,'click',true);
+                    writeOutput(this,'click',true, '$selector');
                 } else {
-                    writeOutput(this,'click',false);
+                    writeOutput(this,'click',false, '$selector');
                 }
             });
         ";
@@ -113,9 +113,9 @@ class Casper
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
                     this.sendKeys(x('$selector'));
-                    writeOutput(this,'sendKeys',true);
+                    writeOutput(this,'sendKeys',true, '$selector');
                 } else {
-                    writeOutput(this,'click',false);
+                    writeOutput(this,'click',false, '$selector');
                 }
             });
         ";
@@ -145,7 +145,7 @@ class Casper
     public function getValue($name)
     {
         $this->_script .= "
-            writeOutput(this,'getValue',true, $name);
+            writeOutput(this,'getValue',true, null ,$name);
         ";
     }
 
@@ -191,7 +191,7 @@ class Casper
         $timems = $time * 1000;
         $this->_script .= "casper.then(function() {
             casper.wait($timems);
-            writeOutput(this,'wait',true);
+            writeOutput(this,'wait',true,null,'$time');
         });";
     }
 
@@ -223,9 +223,9 @@ class Casper
                         format: '$format',
                         quality: $quality
                 });
-                writeOutput(this,'$type',true,'$path');
+                writeOutput(this,'$type',true,'$selector','$path');
             } else {
-                writeOutput(this,'$type',false,'$path');
+                writeOutput(this,'$type',false,'$selector','$path');
             }
         });";
     }
@@ -286,6 +286,7 @@ class Casper
         casper.then(function() {
             if(casper.exists(x('$selector'))) {
                 count = this.getElementsInfo(x('$selector')).length;
+                writeOutput(this,'reload',true, '$selector',count);
             } else {
                 count = 0;
             }
@@ -316,6 +317,27 @@ class Casper
         ";
     }
 
+    /**
+     * Submit a form with data
+     * @param $selector
+     * @param array $data Json or array
+     * @param bool $submit
+     */
+    public function fillForm($selector, $data = array(), $submit = false) {
+        $jsonData = is_array($data) ? json_encode($data) : $data;
+        $jsonSubmit = ($submit) ? 'true' : 'false';
+        $this->_script .= "
+            casper.then(function () {
+                if(casper.exists(x('$selector')))  {
+                    this.fill('$selector', $jsonData, $jsonSubmit);
+                    writeOutput(this,'fill_form',true,'$selector');
+                } else {
+                    writeOutput(this,'fill_form',false,'$selector');
+                }
+            });
+        ";
+    }
+    
     /**
      * Check if value is equals to comparator
      *
@@ -409,7 +431,8 @@ class Casper
             $result['current_url'] = $explode[1];
             $result['function_name'] = $explode[2];
             $result['passed'] = $explode[3];
-            $result['value'] = $explode[4];
+            $result['element'] = $explode[4];
+            $result['value'] = $explode[5];
             $results['results'][] = $result;
         }
         $results['date_start'] = $this->_dateStart;
