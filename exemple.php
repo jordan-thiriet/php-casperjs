@@ -11,7 +11,7 @@ $casper->start("http://spallian.com/");
 /*$casper->click('//*[@id="menu-item-7458"]/a');
 $casper->sendKeys('//*[@id="wpcf7-f7743-p7456-o1"]/form/p[1]/span/input','test');
 $casper->captureSelector('/html/body','capture/test.png');*/
-$casper->ifStart('//*[@id="menu-item-7376-test"]/a');
+$casper->ifStart('//*[@id="menu-item-7376"]/a');
 $casper->click('//*[@id="menu-item-7376"]/a');
 $casper->count('//*[@id="post-7148"]/div/div/div');
 $casper->forStart(1,'count');
