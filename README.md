@@ -24,7 +24,7 @@ $casper->click('//*[@id="menu-item-7376"]/a');
 $casper->forStart(1,21);
 $casper->setValue('//*[@id="post-7148"]/div/div/div[{i}]/div/div[2]/h5','username');
 $casper->getValue('username');
-$casper->captureSelector('//*[@id="post-7148"]/div/div/div[{i}]/div/div[1]/img','capture/{i}.jpg');
+$casper->captureSelector('//*[@id="post-7148"]/div/div/div[{i}]/div/div[1]/img','capture/{username}.jpg');
 $casper->forEnd();
 $casper->run();
 print_r($casper->getOutput());
