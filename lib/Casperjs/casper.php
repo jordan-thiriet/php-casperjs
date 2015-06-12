@@ -425,7 +425,8 @@ class Casper
     public function getOutput()
     {
         $results = array();
-
+        $results['passed'] = true;
+        
         // For all results of casperjs output
         foreach ($this->_output as $output) {
             $explode = explode(';', $output);
@@ -434,13 +435,16 @@ class Casper
             $result['current_url'] = $explode[1];
             $result['function_name'] = $explode[2];
             $result['passed'] = $explode[3];
+            if(!$result['passed']) {
+                $results['passed'] = false;
+            }
             $result['element'] = $explode[4];
             $result['value'] = $explode[5];
             $results['results'][] = $result;
         }
         $results['date_start'] = $this->_dateStart;
         $results['date_end'] = $this->_dateEnd;
-
+        
         return $results;
     }
 
