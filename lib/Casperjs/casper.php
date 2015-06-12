@@ -36,7 +36,8 @@ class Casper
         $this->_script .= "
             var writeOutput = function(scope, functionName, pass, element, value) {
                 value = value === undefined ? null : value;
-                scope.echo(scope.currentHTTPStatus+';'+scope.getCurrentUrl()+';'+functionName+';'+pass+';'+element+';'+value);
+                var date = new Date();
+                scope.echo(scope.currentHTTPStatus+';'+date+';'+scope.getCurrentUrl()+';'+functionName+';'+pass+';'+element+';'+value);
             };
             var x = require('casper').selectXPath;
             var error = 0;
@@ -432,14 +433,15 @@ class Casper
             $explode = explode(';', $output);
             $result = array();
             $result['http_status'] = $explode[0];
-            $result['current_url'] = $explode[1];
-            $result['function_name'] = $explode[2];
-            $result['passed'] = $explode[3];
+            $result['date'] = $explode[1];
+            $result['current_url'] = $explode[2];
+            $result['function_name'] = $explode[3];
+            $result['passed'] = $explode[4];
             if(!$result['passed']) {
                 $results['passed'] = false;
             }
-            $result['element'] = $explode[4];
-            $result['value'] = $explode[5];
+            $result['element'] = $explode[5];
+            $result['value'] = $explode[6];
             $results['results'][] = $result;
         }
         $results['date_start'] = $this->_dateStart;
