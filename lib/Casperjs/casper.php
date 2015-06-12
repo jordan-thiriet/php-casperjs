@@ -436,7 +436,7 @@ class Casper
             $result['date'] = $explode[1];
             $result['current_url'] = $explode[2];
             $result['function_name'] = $explode[3];
-            $result['passed'] = $explode[4];
+            $result['passed'] = (boolean)$explode[4];
             if(!$result['passed']) {
                 $results['passed'] = false;
             }
