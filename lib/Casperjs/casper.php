@@ -80,7 +80,7 @@ class Casper
     public function start($url)
     {
         $this->_script .= "
-            casper.start('" . $url . "', function() {
+            casper.start('$url', function() {
                 writeOutput(this,'start',true, null, '$url');
             });";
     }
@@ -131,7 +131,7 @@ class Casper
         $selector = $this->replaceVariable($selector);
         $this->_script .= "
         var regex = /(<([^>]+)>)/ig
-            ,body = this.getHTML(x('$selector'))
+            ,body = this.fetchText(x('$selector'))
             ,$name = body.replace(regex, '');
             $name = $name.replace('\\n', '');
             $name = $name.replace('\\r', '');
@@ -280,15 +280,14 @@ class Casper
      * Count item of selector
      * @param $selector
      */
-    public function count($selector)
+    public function count($selector, $var)
     {
         $this->_script .= "
+        var $var = 0;
         casper.then(function() {
             if(casper.exists(x('$selector'))) {
-                count = this.getElementsInfo(x('$selector')).length;
-                writeOutput(this,'reload',true, '$selector',count);
-            } else {
-                count = 0;
+                $var = this.getElementsInfo(x('$selector')).length;
+                writeOutput(this,'reload',true, '$selector',$var);
             }
             });
         ";
@@ -329,7 +328,7 @@ class Casper
         $this->_script .= "
             casper.then(function () {
                 if(casper.exists(x('$selector')))  {
-                    this.fill('$selector', $jsonData, $jsonSubmit);
+                    this.fillXPath('$selector', $jsonData, $jsonSubmit);
                     writeOutput(this,'fill_form',true,'$selector');
                 } else {
                     writeOutput(this,'fill_form',false,'$selector');
@@ -337,7 +336,7 @@ class Casper
             });
         ";
     }
-    
+
     /**
      * Check if value is equals to comparator
      *
@@ -413,6 +412,10 @@ class Casper
 
         // datetime end
         $this->_dateEnd = new \DateTime;
+
+        // Delete file
+        unlink($this->_path);
+
     }
 
     /**
