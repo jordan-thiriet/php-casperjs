@@ -4,7 +4,7 @@
  */
 
 date_default_timezone_set('Europe/Paris');
-require 'Casperjs/Casper.php';
+require 'lib/Casperjs/Casper.php';
 
 $casper = new \CasperJS\Casper(1280,800,"script/test.js");
 $casper->start("http://spallian.com/");

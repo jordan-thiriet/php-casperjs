@@ -92,6 +92,7 @@ class Casper
      */
     public function click($selector)
     {
+        $selector = $this->replaceVariable($selector);
         $this->_script .= "
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
@@ -110,6 +111,7 @@ class Casper
      */
     public function sendKeys($selector)
     {
+        $selector = $this->replaceVariable($selector);
         $this->_script .= "
             casper.then(function() {
                 if(casper.exists(x('$selector')))  {
@@ -415,7 +417,7 @@ class Casper
         $this->_dateEnd = new \DateTime;
 
         // Delete file
-        unlink($this->_path);
+        //unlink($this->_path);
 
     }
 
