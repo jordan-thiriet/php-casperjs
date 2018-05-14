@@ -623,8 +623,7 @@ FRAGMENT;
         $handle = fopen($this->getPathScript() . '.js', 'w');
         fwrite($handle, $this->_string);
         $this->dateStart = new \DateTime;
-        exec('php -v', $this->output);
-        var_dump($this->output);die();
+        exec('casperjs '.$this->path, $this->output);
         $this->dateEnd = new \DateTime;
     }
 
